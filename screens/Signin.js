@@ -55,7 +55,7 @@ class Login extends React.Component {
             this.props.navigation.navigate('SignUp');
           }}>
           <Text style={styles.helpText}>
-            New user? <Text style={styles.button2}>signup</Text>
+            New user? <Text style={styles.button2}> Sign up</Text>
           </Text>
         </TouchableOpacity>
       </View>
