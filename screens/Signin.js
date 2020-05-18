@@ -50,9 +50,14 @@ class Login extends React.Component {
         <TouchableOpacity onPress={this.handleSubmit} style={styles.button}>
           <Text style={styles.loginText}>Login</Text>
         </TouchableOpacity>
-        <Text style={styles.helpText}>
-          New user? <Text style={styles.button2}>signup</Text>
-        </Text>
+        <TouchableOpacity
+          onPress={() => {
+            this.props.navigation.navigate('SignUp');
+          }}>
+          <Text style={styles.helpText}>
+            New user? <Text style={styles.button2}>signup</Text>
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   }
