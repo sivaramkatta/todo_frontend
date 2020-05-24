@@ -7,7 +7,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import {POST} from './fetch';
+import {POST} from '../utils/fetch';
+import DropDownHolder from '../utils/dropdown';
+import {
+  ValidName,
+  ValidUsername,
+  ValidEmail,
+  ValidPassword,
+} from '../utils/validations';
 
 class SignUp extends React.Component {
   state = {
@@ -15,21 +22,64 @@ class SignUp extends React.Component {
     email: '',
     username: '',
     password: '',
+    error: false,
   };
 
+  validateForm() {
+    const {name, email, username, password, error} = this.state;
+    if (name === '' || email === '' || username === '' || password === '') {
+      this.setState({error: true});
+      DropDownHolder.dropDown.alertWithType(
+        'error',
+        'Error',
+        'Please fill all details',
+      );
+    } else if (!ValidName(name)) {
+      this.setState({error: true});
+      DropDownHolder.dropDown.alertWithType(
+        'error',
+        'Error',
+        'Please enter valid name',
+      );
+    } else if (!ValidUsername(username)) {
+      this.setState({error: true});
+      DropDownHolder.dropDown.alertWithType(
+        'error',
+        'Error',
+        'Username must be only alphanumeric',
+      );
+    } else if (!ValidEmail(email)) {
+      this.setState({error: true});
+      DropDownHolder.dropDown.alertWithType(
+        'error',
+        'Error',
+        'Please enter valid email id',
+      );
+    } else if (!ValidPassword(password)) {
+      this.setState({error: true});
+      DropDownHolder.dropDown.alertWithType(
+        'error',
+        'Error',
+        'Password must have atleast 5 characters',
+      );
+    }
+  }
+
   handleSubmit = async () => {
-    const {username, password, email, name} = this.state;
-    const data = await POST('signup', {
-      username,
-      password,
-      email,
-      name,
-    });
-    console.log(data);
-    if (data.data) {
-      await AsyncStorage.getItem('token');
-    } else if (data.error) {
-      // handle error
+    await this.validateForm();
+    const {username, password, email, name, error} = this.state;
+    if (!error) {
+      const data = await POST('signup', {
+        username,
+        password,
+        email,
+        name,
+      });
+      if (data.data) {
+        await AsyncStorage.setItem('token', data.data.token);
+      } else if (data.error) {
+        DropDownHolder.dropDown.alertWithType('error', 'Error', data.error.msg);
+      }
     }
   };
 
@@ -42,21 +92,21 @@ class SignUp extends React.Component {
           placeholder="Name"
           autoCapitalize="none"
           placeholderTextColor="#686868"
-          onChangeText={(name) => this.setState({name})}
+          onChangeText={(name) => this.setState({name, error: false})}
         />
         <TextInput
           style={styles.TextInput}
           placeholder="Username"
           autoCapitalize="none"
           placeholderTextColor="#686868"
-          onChangeText={(username) => this.setState({username})}
+          onChangeText={(username) => this.setState({username, error: false})}
         />
         <TextInput
           style={styles.TextInput}
           placeholder="Email"
           autoCapitalize="none"
           placeholderTextColor="#686868"
-          onChangeText={(email) => this.setState({email})}
+          onChangeText={(email) => this.setState({email, error: false})}
         />
         <TextInput
           style={[styles.TextInput, styles.margin]}
@@ -64,7 +114,7 @@ class SignUp extends React.Component {
           autoCapitalize="none"
           placeholderTextColor="#686868"
           secureTextEntry={true}
-          onChangeText={(password) => this.setState({password})}
+          onChangeText={(password) => this.setState({password, error: false})}
         />
         <TouchableOpacity onPress={this.handleSubmit} style={styles.button}>
           <Text style={styles.loginText}>Signup</Text>

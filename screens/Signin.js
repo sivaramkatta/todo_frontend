@@ -7,24 +7,49 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import {POST} from './fetch';
+import {POST} from '../utils/fetch';
+import DropDownHolder from '../utils/dropdown';
+import {ValidUsername} from '../utils/validations';
 
 class Login extends React.Component {
   state = {
     username: '',
     password: '',
+    error: false,
   };
 
-  handleSubmit = async () => {
+  validateForm() {
     const {username, password} = this.state;
-    const data = await POST('signin', {
-      username,
-      password,
-    });
-    if (data.data) {
-      AsyncStorage.setItem('token', data.data.token);
-    } else if (data.error) {
-      // handle error
+    if (username === '' || password === '') {
+      this.setState({error: true});
+      DropDownHolder.dropDown.alertWithType(
+        'error',
+        'Error',
+        'Please fill all details',
+      );
+    } else if (!ValidUsername(username)) {
+      this.setState({error: true});
+      DropDownHolder.dropDown.alertWithType(
+        'error',
+        'Error',
+        'Please enter valid username',
+      );
+    }
+  }
+
+  handleSubmit = async () => {
+    await this.validateForm();
+    const {username, password, error} = this.state;
+    if (!error) {
+      const data = await POST('signin', {
+        username,
+        password,
+      });
+      if (data.data) {
+        await AsyncStorage.setItem('token', data.data.token);
+      } else if (data.error) {
+        DropDownHolder.dropDown.alertWithType('error', 'Error', data.error.msg);
+      }
     }
   };
 
@@ -37,7 +62,7 @@ class Login extends React.Component {
           placeholder="Username"
           autoCapitalize="none"
           placeholderTextColor="#686868"
-          onChangeText={(username) => this.setState({username})}
+          onChangeText={(username) => this.setState({username, error: false})}
         />
         <TextInput
           style={[styles.TextInput, styles.margin]}
@@ -45,7 +70,7 @@ class Login extends React.Component {
           autoCapitalize="none"
           placeholderTextColor="#686868"
           secureTextEntry={true}
-          onChangeText={(password) => this.setState({password})}
+          onChangeText={(password) => this.setState({password, error: false})}
         />
         <TouchableOpacity onPress={this.handleSubmit} style={styles.button}>
           <Text style={styles.loginText}>Login</Text>
