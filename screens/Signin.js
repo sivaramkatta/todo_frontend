@@ -6,7 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import {SetInStorage} from '../utils/storage';
 import {POST} from '../utils/fetch';
 import DropDownHolder from '../utils/dropdown';
 import {ValidUsername} from '../utils/validations';
@@ -46,7 +46,7 @@ class Login extends React.Component {
         password,
       });
       if (data.data) {
-        await AsyncStorage.setItem('token', data.data.token);
+        await SetInStorage('token', data.data.token);
       } else if (data.error) {
         DropDownHolder.dropDown.alertWithType('error', 'Error', data.error.msg);
       }
