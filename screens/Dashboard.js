@@ -1,9 +1,21 @@
 import React from 'react';
-import {Text} from 'react-native';
+import {Text, Button, View} from 'react-native';
+import {DeleteStorage} from '../utils/storage';
 
 class Dashboard extends React.Component {
   render() {
-    return <Text>This is dashboard</Text>;
+    return (
+      <View>
+        <Text>This is dashboard</Text>
+        <Button
+          title="logout"
+          onPress={async () => {
+            await DeleteStorage();
+            this.props.navigation.navigate('SignIn');
+          }}
+        />
+      </View>
+    );
   }
 }
 

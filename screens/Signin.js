@@ -47,6 +47,7 @@ class Login extends React.Component {
       });
       if (data.data) {
         await SetInStorage('token', data.data.token);
+        this.props.navigation.navigate('Dashboard');
       } else if (data.error) {
         DropDownHolder.dropDown.alertWithType('error', 'Error', data.error.msg);
       }

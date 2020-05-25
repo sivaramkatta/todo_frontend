@@ -1,19 +1,12 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import {StyleSheet, ActivityIndicator, View} from 'react-native';
 import DropdownAlert from 'react-native-dropdownalert';
 import {GetFromStorage} from './utils/storage';
-import SignIn from './screens/Signin';
-import SignUp from './screens/Signup';
-import Dashboard from './screens/Dashboard';
 import DropDownHolder from './utils/dropdown';
-import {ActivityIndicator} from 'react-native';
+import createRootNavigation from './utils/router';
 
-const Stack = createStackNavigator();
 class App extends React.Component {
   state = {
-    loggedin: false,
     loading: true,
   };
 
@@ -26,24 +19,16 @@ class App extends React.Component {
   }
 
   render() {
-    const {loggedin, loading} = this.state;
+    const {loading, loggedin} = this.state;
     if (loading) {
       return <ActivityIndicator style={styles.loader} />;
     }
+    const AppRouter = createRootNavigation(loggedin);
     return (
-      <NavigationContainer>
-        {loggedin ? (
-          <Stack.Navigator>
-            <Stack.Screen name="Dashboard" component={Dashboard} />
-          </Stack.Navigator>
-        ) : (
-          <Stack.Navigator>
-            <Stack.Screen name="SignIn" component={SignIn} />
-            <Stack.Screen name="SignUp" component={SignUp} />
-          </Stack.Navigator>
-        )}
+      <View style={styles.container}>
+        <AppRouter />
         <DropdownAlert ref={(ref) => DropDownHolder.setDropDown(ref)} />
-      </NavigationContainer>
+      </View>
     );
   }
 }
@@ -51,6 +36,9 @@ class App extends React.Component {
 export default App;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   loader: {
     marginTop: 50,
   },
