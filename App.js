@@ -1,24 +1,45 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import {StyleSheet, ActivityIndicator, View} from 'react-native';
 import DropdownAlert from 'react-native-dropdownalert';
-import SignIn from './screens/Signin';
-import SignUp from './screens/Signup';
+import {GetFromStorage} from './utils/storage';
 import DropDownHolder from './utils/dropdown';
+import createRootNavigation from './utils/router';
 
-const Stack = createStackNavigator();
 class App extends React.Component {
+  state = {
+    loading: true,
+  };
+
+  async componentDidMount() {
+    const token = await GetFromStorage('token');
+    this.setState({loading: false});
+    if (token) {
+      this.setState({loggedin: true});
+    }
+  }
+
   render() {
+    const {loading, loggedin} = this.state;
+    if (loading) {
+      return <ActivityIndicator style={styles.loader} />;
+    }
+    const AppRouter = createRootNavigation(loggedin);
     return (
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen name="SignIn" component={SignIn} />
-          <Stack.Screen name="SignUp" component={SignUp} />
-        </Stack.Navigator>
+      <View style={styles.container}>
+        <AppRouter />
         <DropdownAlert ref={(ref) => DropDownHolder.setDropDown(ref)} />
-      </NavigationContainer>
+      </View>
     );
   }
 }
 
 export default App;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  loader: {
+    marginTop: 50,
+  },
+});
