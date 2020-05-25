@@ -1,12 +1,16 @@
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import Dashboard from '../screens/Dashboard';
+import Profile from '../screens/Profile';
 import SignIn from '../screens/Signin';
 import SignUp from '../screens/Signup';
 
 const LoggedInStack = createStackNavigator({
   Dashboard: {
     screen: Dashboard,
+  },
+  Profile: {
+    screen: Profile,
   },
 });
 

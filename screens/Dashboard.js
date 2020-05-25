@@ -1,22 +1,38 @@
 import React from 'react';
-import {Text, Button, View} from 'react-native';
-import {DeleteStorage} from '../utils/storage';
+import {Text, View, TouchableOpacity, Image, StyleSheet} from 'react-native';
 
 class Dashboard extends React.Component {
+  static navigationOptions = ({navigation}) => {
+    return {
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('Profile');
+          }}>
+          <Image
+            source={require('../images/default_pp.jpg')}
+            style={styles.image}
+          />
+        </TouchableOpacity>
+      ),
+    };
+  };
   render() {
     return (
       <View>
         <Text>This is dashboard</Text>
-        <Button
-          title="logout"
-          onPress={async () => {
-            await DeleteStorage();
-            this.props.navigation.navigate('SignIn');
-          }}
-        />
       </View>
     );
   }
 }
 
 export default Dashboard;
+
+const styles = StyleSheet.create({
+  image: {
+    height: 30,
+    width: 30,
+    marginRight: 16,
+    backgroundColor: 'white',
+  },
+});
