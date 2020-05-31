@@ -4,6 +4,7 @@ import Dashboard from '../screens/Dashboard';
 import Profile from '../screens/Profile';
 import SignIn from '../screens/Signin';
 import SignUp from '../screens/Signup';
+import EditProfile from '../screens/EditProfile';
 
 const LoggedInStack = createStackNavigator({
   Dashboard: {
@@ -11,6 +12,9 @@ const LoggedInStack = createStackNavigator({
   },
   Profile: {
     screen: Profile,
+  },
+  EditProfile: {
+    screen: EditProfile,
   },
 });
 
