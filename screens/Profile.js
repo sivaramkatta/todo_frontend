@@ -1,5 +1,6 @@
 import React from 'react';
 import {Text, Button, View, Image, StyleSheet} from 'react-native';
+import {NavigationEvents} from 'react-navigation';
 import {DeleteStorage} from '../utils/storage';
 import {GET} from '../utils/fetch';
 
@@ -9,7 +10,12 @@ class Dashboard extends React.Component {
     username: '',
     email: '',
   };
+
   async componentDidMount() {
+    this.getProfile();
+  }
+
+  async getProfile() {
     const data = await GET('user');
     if (data.data) {
       const {
@@ -23,6 +29,7 @@ class Dashboard extends React.Component {
     const {name, email, username} = this.state;
     return (
       <View style={styles.container}>
+        <NavigationEvents onDidFocus={() => this.getProfile()} />
         <Image
           source={require('../images/profile_pic.jpg')}
           style={styles.image}
