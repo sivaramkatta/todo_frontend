@@ -10,7 +10,7 @@ class Dashboard extends React.Component {
             navigation.navigate('Profile');
           }}>
           <Image
-            source={require('../images/default_pp.jpg')}
+            source={require('../images/default_pp.png')}
             style={styles.image}
           />
         </TouchableOpacity>
