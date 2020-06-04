@@ -4,7 +4,7 @@ import Button from '../components/Button';
 import {GET} from '../utils/fetch';
 
 function formatDate(date) {
-  return `${date.getDate()}-${date.getMonth()}-${date.getFullYear()}`;
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 }
 
 class Dashboard extends React.Component {
@@ -43,11 +43,22 @@ class Dashboard extends React.Component {
   }
 
   handleButtonClick(value) {
+    const {selected} = this.state;
+    let date = '';
+    const today = new Date();
+    if (value === 'YESTERDAY' && selected !== value) {
+      date = new Date(today.setDate(today.getDate() - 1));
+    } else if (value === 'TODAY' && selected !== value) {
+      date = new Date();
+    } else if (value === 'TOMORROW' && selected !== value) {
+      date = new Date(today.setDate(today.getDate() + 1));
+    }
     this.setState({selected: value});
+    this.getTODO(date);
   }
 
   render() {
-    const {selected} = this.state;
+    const {selected, todos} = this.state;
     return (
       <View style={styles.container}>
         <View style={styles.buttonContainer}>
@@ -75,6 +86,9 @@ class Dashboard extends React.Component {
             </View>
           </TouchableOpacity>
         </View>
+        {todos.map((todo) => (
+          <Text>{todo.description}</Text>
+        ))}
       </View>
     );
   }
