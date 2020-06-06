@@ -37,6 +37,7 @@ class Dashboard extends React.Component {
     todos: [],
     todo_more: {},
     showModal: false,
+    typeOfModal: 'ADD',
   };
 
   componentDidMount() {
@@ -86,6 +87,23 @@ class Dashboard extends React.Component {
     }
   }
 
+  async handleAdd() {
+    const {todo_more, selected} = this.state;
+    let date = this.getDateOfTodo(selected);
+    const data = await POST(
+      'todo/',
+      {
+        description: todo_more.description,
+        date,
+      },
+      'post',
+    );
+    if (data.data) {
+      this.getTODO(date);
+      this.setState({todo_more: {}});
+    }
+  }
+
   async handleDone(todo) {
     const {selected} = this.state;
     let date = this.getDateOfTodo(selected);
@@ -96,8 +114,16 @@ class Dashboard extends React.Component {
       },
       'put',
     );
-    console.log(data);
     if (data.data) {
+      this.getTODO(date);
+    }
+  }
+
+  async handleDelete() {
+    const {selected, todo_more} = this.state;
+    let date = this.getDateOfTodo(selected);
+    const data = await GET(`todo/${todo_more.id}`, 'delete');
+    if (data.success) {
       this.getTODO(date);
     }
   }
@@ -136,62 +162,23 @@ class Dashboard extends React.Component {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
-              this.setState({todo_more: todo, showModal: true});
+              this.setState({
+                todo_more: todo,
+                showModal: true,
+                typeOfModal: 'EDIT',
+              });
             }}>
             <View style={styles.cta1}>
               <Text style={styles.ctatext}>Edit</Text>
             </View>
           </TouchableOpacity>
         </View>
-        <Modal transparent={true} visible={this.state.showModal}>
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <View style={styles.modalContainer}>
-                <Text style={styles.modalDescription}>Description</Text>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.setState({showModal: false});
-                  }}>
-                  <Text style={styles.x}>X</Text>
-                </TouchableOpacity>
-              </View>
-              <TextInput
-                value={this.state.todo_more.description}
-                style={styles.TextInput}
-                autoCapitalize="none"
-                onChangeText={(value) => {
-                  const todo_more = Object.assign({}, this.state.todo_more);
-                  todo_more.description = value;
-                  this.setState({todo_more});
-                }}
-              />
-              <View style={styles.modalButton}>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.handleEdit();
-                  }}>
-                  <View style={styles.cta1}>
-                    <Text style={styles.ctatext1}>Submit</Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    console.log('delete');
-                  }}>
-                  <View style={styles.cta2}>
-                    <Text style={styles.ctatext1}>Delete</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
       </View>
     ));
   }
 
   render() {
-    const {selected} = this.state;
+    const {selected, typeOfModal} = this.state;
     return (
       <View style={styles.container}>
         <View style={styles.buttonContainer}>
@@ -219,7 +206,69 @@ class Dashboard extends React.Component {
             </View>
           </TouchableOpacity>
         </View>
-        <View style={styles.listContaienr}>{this.GetTodoList()}</View>
+        <View style={styles.listContaienr}>
+          <View style={styles.addButton}>
+            <Button
+              title="+ Add"
+              style={styles.addButtonStyle}
+              handleOnClick={() =>
+                this.setState({
+                  showModal: true,
+                  typeOfModal: 'ADD',
+                  todo_more: {},
+                })
+              }
+            />
+          </View>
+          {this.GetTodoList()}
+        </View>
+        <Modal transparent={true} visible={this.state.showModal}>
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <View style={styles.modalContainer}>
+                <Text style={styles.modalDescription}>Description</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({showModal: false});
+                  }}>
+                  <Text style={styles.x}>X</Text>
+                </TouchableOpacity>
+              </View>
+              <TextInput
+                value={this.state.todo_more.description}
+                style={styles.TextInput}
+                autoCapitalize="none"
+                onChangeText={(value) => {
+                  const todo_more = Object.assign({}, this.state.todo_more);
+                  todo_more.description = value;
+                  this.setState({todo_more});
+                }}
+              />
+              <View style={styles.modalButton}>
+                <TouchableOpacity
+                  onPress={() => {
+                    typeOfModal === 'ADD'
+                      ? this.handleAdd()
+                      : this.handleEdit();
+                  }}>
+                  <View style={styles.cta1}>
+                    <Text style={styles.ctatext1}>Submit</Text>
+                  </View>
+                </TouchableOpacity>
+                {typeOfModal === 'EDIT' && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.handleDelete();
+                    }}>
+                    <View style={styles.cta2}>
+                      <Text style={styles.ctatext1}>Delete</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -348,5 +397,15 @@ const styles = StyleSheet.create({
   empty: {
     textAlign: 'center',
     fontSize: 18,
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
+    marginTop: 16,
+  },
+  addButtonStyle: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    backgroundColor: 'green',
   },
 });

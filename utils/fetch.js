@@ -15,10 +15,10 @@ export async function POST(endpoint, body, type = 'post') {
     .then((data) => data);
 }
 
-export async function GET(endpoint) {
+export async function GET(endpoint, type = 'get') {
   const token = await GetFromStorage('token');
   return fetch(`${config.api}/${endpoint}`, {
-    method: 'get',
+    method: type,
     headers: {
       'Content-Type': 'application/json',
       authorization: `Bearer ${token}`,
