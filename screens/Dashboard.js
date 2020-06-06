@@ -9,7 +9,7 @@ import {
   TextInput,
 } from 'react-native';
 import Button from '../components/Button';
-import {GET} from '../utils/fetch';
+import {GET, POST} from '../utils/fetch';
 
 function formatDate(date) {
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -48,28 +48,68 @@ class Dashboard extends React.Component {
     const data = await GET(`todo/?date=${formatDate(date_value)}`);
     if (data.data) {
       const {data: todos} = data;
-      this.setState({todos});
+      this.setState({todos, showModal: false});
     }
   }
 
-  handleButtonClick(value) {
-    let date = '';
+  getDateOfTodo(value) {
     const today = new Date();
+    let date = '';
     if (value === 'YESTERDAY') {
-      date = new Date(today.setDate(today.getDate() - 2));
+      date = new Date(today.setDate(today.getDate() - 1));
     } else if (value === 'TODAY') {
       date = new Date();
     } else if (value === 'TOMORROW') {
       date = new Date(today.setDate(today.getDate() + 1));
     }
+    return date;
+  }
+
+  handleButtonClick(value) {
+    let date = this.getDateOfTodo(value);
     this.setState({selected: value});
     this.getTODO(date);
   }
 
+  async handleEdit() {
+    const {todo_more, selected} = this.state;
+    let date = this.getDateOfTodo(selected);
+    const data = await POST(
+      `todo/${todo_more.id}`,
+      {
+        description: todo_more.description,
+      },
+      'put',
+    );
+    if (data.data) {
+      this.getTODO(date);
+    }
+  }
+
+  async handleDone(todo) {
+    const {selected} = this.state;
+    let date = this.getDateOfTodo(selected);
+    const data = await POST(
+      `todo/${todo.id}`,
+      {
+        done: !todo.done,
+      },
+      'put',
+    );
+    console.log(data);
+    if (data.data) {
+      this.getTODO(date);
+    }
+  }
+
   GetTodoList() {
     const {todos} = this.state;
+    if (todos.length === 0) {
+      return <Text style={styles.empty}> No Todos for this day</Text>;
+    }
     return todos.map((todo) => (
       <View
+        key={todo.id}
         style={[
           styles.todoContainer,
           // eslint-disable-next-line react-native/no-inline-styles
@@ -88,7 +128,7 @@ class Dashboard extends React.Component {
         <View style={styles.ctaContainer}>
           <TouchableOpacity
             onPress={() => {
-              console.log('done');
+              this.handleDone(todo);
             }}>
             <View style={styles.cta1}>
               <Text style={styles.ctatext}>{todo.done ? 'Undo' : 'Done'}</Text>
@@ -119,11 +159,16 @@ class Dashboard extends React.Component {
                 value={this.state.todo_more.description}
                 style={styles.TextInput}
                 autoCapitalize="none"
+                onChangeText={(value) => {
+                  const todo_more = Object.assign({}, this.state.todo_more);
+                  todo_more.description = value;
+                  this.setState({todo_more});
+                }}
               />
               <View style={styles.modalButton}>
                 <TouchableOpacity
                   onPress={() => {
-                    console.log('submit');
+                    this.handleEdit();
                   }}>
                   <View style={styles.cta1}>
                     <Text style={styles.ctatext1}>Submit</Text>
@@ -219,7 +264,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  textContainer: {flex: 1},
+  textContainer: {
+    flex: 1,
+  },
   description: {
     flexWrap: 'wrap',
     fontSize: 16,
@@ -287,7 +334,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 10,
   },
-  modalDescription: {fontSize: 16},
-  x: {fontSize: 18, fontWeight: '500'},
-  modalButton: {flexDirection: 'row', justifyContent: 'flex-end'},
+  modalDescription: {
+    fontSize: 16,
+  },
+  x: {
+    fontSize: 18,
+    fontWeight: '500',
+  },
+  modalButton: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  empty: {
+    textAlign: 'center',
+    fontSize: 18,
+  },
 });

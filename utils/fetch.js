@@ -1,11 +1,11 @@
 import config from './config';
 import {GetFromStorage} from './storage';
 
-export async function POST(endpoint, body) {
+export async function POST(endpoint, body, type = 'post') {
   const token = await GetFromStorage('token');
   return fetch(`${config.api}/${endpoint}`, {
     body: JSON.stringify(body),
-    method: 'post',
+    method: type,
     headers: {
       'Content-Type': 'application/json',
       authorization: `Bearer ${token}`,
