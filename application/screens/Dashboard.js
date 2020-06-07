@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import Button from '../components/Button';
 import {GET, POST} from '../utils/fetch';
+import DropDownHolder from '../utils/dropdown';
 
 function formatDate(date) {
   return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -74,33 +75,49 @@ class Dashboard extends React.Component {
 
   async handleEdit() {
     const {todo_more, selected} = this.state;
-    let date = this.getDateOfTodo(selected);
-    const data = await POST(
-      `todo/${todo_more.id}`,
-      {
-        description: todo_more.description,
-      },
-      'put',
-    );
-    if (data.data) {
-      this.getTODO(date);
+    if (todo_more.description === '') {
+      DropDownHolder.dropDown.alertWithType(
+        'error',
+        'Error',
+        'Please enter description',
+      );
+    } else {
+      let date = this.getDateOfTodo(selected);
+      const data = await POST(
+        `todo/${todo_more.id}`,
+        {
+          description: todo_more.description,
+        },
+        'put',
+      );
+      if (data.data) {
+        this.getTODO(date);
+      }
     }
   }
 
   async handleAdd() {
     const {todo_more, selected} = this.state;
-    let date = this.getDateOfTodo(selected);
-    const data = await POST(
-      'todo/',
-      {
-        description: todo_more.description,
-        date,
-      },
-      'post',
-    );
-    if (data.data) {
-      this.getTODO(date);
-      this.setState({todo_more: {}});
+    if (Object.keys(todo_more).length === 0) {
+      DropDownHolder.dropDown.alertWithType(
+        'error',
+        'Error',
+        'Please enter description',
+      );
+    } else {
+      let date = this.getDateOfTodo(selected);
+      const data = await POST(
+        'todo/',
+        {
+          description: todo_more.description,
+          date,
+        },
+        'post',
+      );
+      if (data.data) {
+        this.getTODO(date);
+        this.setState({todo_more: {}});
+      }
     }
   }
 

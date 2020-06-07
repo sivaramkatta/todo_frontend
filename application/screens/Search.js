@@ -51,32 +51,48 @@ class Search extends React.Component {
 
   async handleEdit() {
     const {todo_more, date} = this.state;
-    const data = await POST(
-      `todo/${todo_more.id}`,
-      {
-        description: todo_more.description,
-      },
-      'put',
-    );
-    if (data.data) {
-      this.getTODO(date);
+    if (todo_more.description === '') {
+      DropDownHolder.dropDown.alertWithType(
+        'error',
+        'Error',
+        'Please enter description',
+      );
+    } else {
+      const data = await POST(
+        `todo/${todo_more.id}`,
+        {
+          description: todo_more.description,
+        },
+        'put',
+      );
+      if (data.data) {
+        this.getTODO(date);
+      }
     }
   }
 
   async handleAdd() {
     const {todo_more, date} = this.state;
-    const date_is = moment(date, 'DD-MM-YYYY').format('YYYY-MM-DD');
-    const data = await POST(
-      'todo/',
-      {
-        description: todo_more.description,
-        date: new Date(date_is),
-      },
-      'post',
-    );
-    if (data.data) {
-      this.getTODO(date);
-      this.setState({todo_more: {}});
+    if (Object.keys(todo_more).length === 0) {
+      DropDownHolder.dropDown.alertWithType(
+        'error',
+        'Error',
+        'Please enter description',
+      );
+    } else {
+      const date_is = moment(date, 'DD-MM-YYYY').format('YYYY-MM-DD');
+      const data = await POST(
+        'todo/',
+        {
+          description: todo_more.description,
+          date: new Date(date_is),
+        },
+        'post',
+      );
+      if (data.data) {
+        this.getTODO(date);
+        this.setState({todo_more: {}});
+      }
     }
   }
 

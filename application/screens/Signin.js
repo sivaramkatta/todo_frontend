@@ -41,7 +41,7 @@ class Login extends React.Component {
     await this.validateForm();
     const {username, password, error} = this.state;
     if (!error) {
-      const data = await POST('signin', {
+      const data = await POST('user/signin', {
         username,
         password,
       });
