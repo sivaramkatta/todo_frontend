@@ -4,6 +4,7 @@ import DropdownAlert from 'react-native-dropdownalert';
 import {GetFromStorage} from './utils/storage';
 import DropDownHolder from './utils/dropdown';
 import createRootNavigation from './utils/router';
+import NavigationService from './utils/navigationService';
 
 class App extends React.Component {
   state = {
@@ -26,7 +27,11 @@ class App extends React.Component {
     const AppRouter = createRootNavigation(loggedin);
     return (
       <View style={styles.container}>
-        <AppRouter />
+        <AppRouter
+          ref={(navigatorRef) => {
+            NavigationService.setTopLevelNavigator(navigatorRef);
+          }}
+        />
         <DropdownAlert ref={(ref) => DropDownHolder.setDropDown(ref)} />
       </View>
     );

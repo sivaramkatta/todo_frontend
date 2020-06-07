@@ -1,5 +1,6 @@
 import config from './config';
 import {GetFromStorage} from './storage';
+import NavigationService from './navigationService';
 
 export async function POST(endpoint, body, type = 'post') {
   const token = await GetFromStorage('token');
@@ -25,5 +26,8 @@ export async function GET(endpoint, type = 'get') {
     },
   })
     .then((res) => res.json())
-    .then((data) => data);
+    .then((data) => {
+      // NavigationService.navigate('Profile');
+      return data;
+    });
 }
