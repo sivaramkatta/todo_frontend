@@ -5,6 +5,7 @@ import Profile from '../screens/Profile';
 import SignIn from '../screens/Signin';
 import SignUp from '../screens/Signup';
 import EditProfile from '../screens/EditProfile';
+import Search from '../screens/Search';
 
 const LoggedInStack = createStackNavigator({
   Dashboard: {
@@ -15,6 +16,9 @@ const LoggedInStack = createStackNavigator({
   },
   EditProfile: {
     screen: EditProfile,
+  },
+  Search: {
+    screen: Search,
   },
 });
 

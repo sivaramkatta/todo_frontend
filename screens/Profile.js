@@ -49,7 +49,6 @@ class Dashboard extends React.Component {
           <Button
             title="Edit Details"
             onPress={async () => {
-              console.log('edit profile screen');
               this.props.navigation.navigate('EditProfile');
             }}
           />
