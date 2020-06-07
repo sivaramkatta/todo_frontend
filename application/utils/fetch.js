@@ -1,5 +1,5 @@
 import config from './config';
-import {GetFromStorage} from './storage';
+import {GetFromStorage, DeleteStorage} from './storage';
 import NavigationService from './navigationService';
 
 export async function POST(endpoint, body, type = 'post') {
@@ -25,9 +25,13 @@ export async function GET(endpoint, type = 'get') {
       authorization: `Bearer ${token}`,
     },
   })
-    .then((res) => res.json())
-    .then((data) => {
-      // NavigationService.navigate('Profile');
-      return data;
-    });
+    .then(async (res) => {
+      if (res.status === 401) {
+        await DeleteStorage();
+        NavigationService.navigate('SignIn');
+      } else {
+        return res.json();
+      }
+    })
+    .then((data) => data);
 }

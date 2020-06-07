@@ -78,13 +78,17 @@ class EditProfile extends React.Component {
     await this.validateForm();
     const {username, password, email, name, error} = this.state;
     if (!error) {
-      const data = await POST('edit', {
-        username,
-        password,
-        email,
-        name,
-      });
-      if (data.success) {
+      const data = await POST(
+        'user/',
+        {
+          username,
+          password,
+          email,
+          name,
+        },
+        'put',
+      );
+      if (data.data) {
         this.props.navigation.navigate('Profile');
       } else if (data.error) {
         DropDownHolder.dropDown.alertWithType('error', 'Error', data.error.msg);

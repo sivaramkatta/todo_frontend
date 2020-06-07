@@ -69,7 +69,7 @@ class SignUp extends React.Component {
     await this.validateForm();
     const {username, password, email, name, error} = this.state;
     if (!error) {
-      const data = await POST('signup', {
+      const data = await POST('user/signup', {
         username,
         password,
         email,

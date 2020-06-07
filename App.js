@@ -1,10 +1,10 @@
 import React from 'react';
 import {StyleSheet, ActivityIndicator, View} from 'react-native';
 import DropdownAlert from 'react-native-dropdownalert';
-import {GetFromStorage} from './utils/storage';
-import DropDownHolder from './utils/dropdown';
-import createRootNavigation from './utils/router';
-import NavigationService from './utils/navigationService';
+import {GetFromStorage} from './application/utils/storage';
+import DropDownHolder from './application/utils/dropdown';
+import createRootNavigation from './application/utils/router';
+import NavigationService from './application/utils/navigationService';
 
 class App extends React.Component {
   state = {
