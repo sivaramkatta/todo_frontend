@@ -57,7 +57,7 @@ class Login extends React.Component {
   render() {
     return (
       <View style={styles.Container}>
-        <Text style={styles.Title}>Welcome to Todo</Text>
+        <Text style={styles.Title}>Welcome to Todo Manager</Text>
         <TextInput
           style={styles.TextInput}
           placeholder="Username"

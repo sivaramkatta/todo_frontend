@@ -87,7 +87,6 @@ class SignUp extends React.Component {
   render() {
     return (
       <View style={styles.Container}>
-        <Text style={styles.Title}>Welcome to Todo</Text>
         <TextInput
           style={styles.TextInput}
           placeholder="Name"
@@ -139,6 +138,7 @@ const styles = StyleSheet.create({
   Container: {
     flex: 1,
     backgroundColor: 'white',
+    paddingTop: 34,
   },
   Title: {
     fontSize: 25,
