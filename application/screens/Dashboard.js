@@ -7,7 +7,9 @@ import {
   StyleSheet,
   Modal,
   TextInput,
+  ActivityIndicator,
 } from 'react-native';
+import {NavigationEvents} from 'react-navigation';
 import Button from '../components/Button';
 import {GET, POST} from '../utils/fetch';
 import DropDownHolder from '../utils/dropdown';
@@ -39,19 +41,23 @@ class Dashboard extends React.Component {
     todo_more: {},
     showModal: false,
     typeOfModal: 'ADD',
+    loading: false,
   };
 
   componentDidMount() {
     this.getTODO();
   }
 
-  async getTODO(date) {
-    const date_value = date ? date : new Date();
-    const data = await GET(`todo/?date=${formatDate(date_value)}`);
-    if (data.data) {
-      const {data: todos} = data;
-      this.setState({todos, showModal: false});
-    }
+  getTODO() {
+    let date = this.getDateOfTodo(this.state.selected);
+    this.setState({loading: true}, async () => {
+      const data = await GET(`todo/?date=${formatDate(date)}`);
+      if (data.data) {
+        const {data: todos} = data;
+        this.setState({todos, showModal: false});
+      }
+      this.setState({loading: false});
+    });
   }
 
   getDateOfTodo(value) {
@@ -68,13 +74,13 @@ class Dashboard extends React.Component {
   }
 
   handleButtonClick(value) {
-    let date = this.getDateOfTodo(value);
-    this.setState({selected: value});
-    this.getTODO(date);
+    this.setState({selected: value}, () => {
+      this.getTODO();
+    });
   }
 
   async handleEdit() {
-    const {todo_more, selected} = this.state;
+    const {todo_more} = this.state;
     if (todo_more.description === '') {
       DropDownHolder.dropDown.alertWithType(
         'error',
@@ -82,7 +88,6 @@ class Dashboard extends React.Component {
         'Please enter description',
       );
     } else {
-      let date = this.getDateOfTodo(selected);
       const data = await POST(
         `todo/${todo_more.id}`,
         {
@@ -91,7 +96,7 @@ class Dashboard extends React.Component {
         'put',
       );
       if (data.data) {
-        this.getTODO(date);
+        this.getTODO();
       }
     }
   }
@@ -115,15 +120,13 @@ class Dashboard extends React.Component {
         'post',
       );
       if (data.data) {
-        this.getTODO(date);
+        this.getTODO();
         this.setState({todo_more: {}});
       }
     }
   }
 
   async handleDone(todo) {
-    const {selected} = this.state;
-    let date = this.getDateOfTodo(selected);
     const data = await POST(
       `todo/${todo.id}`,
       {
@@ -132,16 +135,15 @@ class Dashboard extends React.Component {
       'put',
     );
     if (data.data) {
-      this.getTODO(date);
+      this.getTODO();
     }
   }
 
   async handleDelete() {
-    const {selected, todo_more} = this.state;
-    let date = this.getDateOfTodo(selected);
+    const {todo_more} = this.state;
     const data = await GET(`todo/${todo_more.id}`, 'delete');
     if (data.success) {
-      this.getTODO(date);
+      this.getTODO();
     }
   }
 
@@ -195,9 +197,10 @@ class Dashboard extends React.Component {
   }
 
   render() {
-    const {selected, typeOfModal} = this.state;
+    const {selected, typeOfModal, loading} = this.state;
     return (
       <View style={styles.container}>
+        <NavigationEvents onDidFocus={() => this.getTODO()} />
         <View style={styles.buttonContainer}>
           <Button
             title="Yesterday"
@@ -223,22 +226,26 @@ class Dashboard extends React.Component {
             </View>
           </TouchableOpacity>
         </View>
-        <View style={styles.listContaienr}>
-          <View style={styles.addButton}>
-            <Button
-              title="+ Add"
-              style={styles.addButtonStyle}
-              handleOnClick={() =>
-                this.setState({
-                  showModal: true,
-                  typeOfModal: 'ADD',
-                  todo_more: {},
-                })
-              }
-            />
+        {loading ? (
+          <ActivityIndicator style={styles.loader} />
+        ) : (
+          <View style={styles.listContaienr}>
+            <View style={styles.addButton}>
+              <Button
+                title="+ Add"
+                style={styles.addButtonStyle}
+                handleOnClick={() =>
+                  this.setState({
+                    showModal: true,
+                    typeOfModal: 'ADD',
+                    todo_more: {},
+                  })
+                }
+              />
+            </View>
+            {this.GetTodoList()}
           </View>
-          {this.GetTodoList()}
-        </View>
+        )}
         <Modal transparent={true} visible={this.state.showModal}>
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
@@ -424,5 +431,8 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 10,
     backgroundColor: 'green',
+  },
+  loader: {
+    marginTop: 30,
   },
 });
